@@ -1,0 +1,18 @@
+.canvas {
+  width: 600px;
+  height: 400px;
+  border: 2px dashed #999;
+  position: relative;
+  background-color: #f5f5f5;
+  overflow: hidden;
+}
+
+.canvas-gate {
+  position: absolute;
+  padding: 8px;
+  background-color: #e6e6ff;
+  border: 1px solid #1b5e20;
+  cursor: move;
+  user-select: none;
+  width: 35px;
+}

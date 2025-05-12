@@ -1,0 +1,13 @@
+.gate-list {
+  width: 200px;
+  padding: 10px;
+}
+
+.gate-item {
+  background-color: #e6e6ff;
+  padding: 8px;
+  margin-bottom: 6px;
+  border: 1px solid #999;
+  cursor: move;
+  width: 35px;
+}

@@ -1,0 +1,11 @@
+<h2>Gate List</h2>
+<div class="gate-list">
+  <div
+    *ngFor="let gate of gates"
+    draggable="true"
+    (dragstart)="onDragStart($event, gate)"
+    class="gate-item"
+  >
+    {{ gate.name }}
+  </div>
+</div>

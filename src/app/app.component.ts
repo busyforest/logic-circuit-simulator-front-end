@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import {CanvasComponent} from './canvas/canvas.component';
+import {GateListComponent} from './gate-list/gate-list.component';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  imports: [RouterOutlet, CanvasComponent, GateListComponent],
   templateUrl: './app.component.html',
   styleUrl: './app.component.css'
 })

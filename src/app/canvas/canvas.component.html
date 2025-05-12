@@ -1,0 +1,12 @@
+<h2>Canvas</h2>
+<div class="canvas" (drop)="dropFromOutside($event)" (dragover)="allowDrop($event)">
+  <div
+    *ngFor="let gate of canvasGates"
+    cdkDrag
+    [cdkDragFreeDragPosition]="{x: gate.x || 0, y: gate.y || 0}"
+    (cdkDragEnded)="onDragEnd($event, gate)"
+    class="canvas-gate"
+  >
+    {{ gate.name }}
+  </div>
+</div>
