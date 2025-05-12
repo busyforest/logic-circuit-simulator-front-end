@@ -14,17 +14,6 @@ import {NgForOf} from '@angular/common';
 })
 export class CanvasComponent {
   canvasGates: Gate[] = [];
-
-  // 从 GateList 拖入 Canvas 的方式（模拟创建）
-  onGateDrop(gate: Gate) {
-    this.canvasGates.push({
-      ...gate,
-      x: 50,
-      y: 50,
-      id: Date.now() + Math.random() // 确保唯一性
-    });
-  }
-
   onDragEnd(event: CdkDragEnd, gate: Gate) {
     const pos = event.source.getRootElement().getBoundingClientRect();
     const parent = (event.source.getRootElement().parentElement as HTMLElement).getBoundingClientRect();
@@ -48,5 +37,13 @@ export class CanvasComponent {
 
   allowDrop(event: DragEvent) {
     event.preventDefault();
+  }
+
+  onRightClick(event: MouseEvent, gate: Gate) {
+    event.preventDefault(); // 阻止浏览器默认右键菜单
+    const index = this.canvasGates.findIndex(g => g.id === gate.id);
+    if (index !== -1) {
+      this.canvasGates.splice(index, 1);
+    }
   }
 }

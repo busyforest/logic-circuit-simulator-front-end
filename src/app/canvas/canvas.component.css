@@ -8,6 +8,7 @@
 }
 
 .canvas-gate {
+  text-align: center;
   position: absolute;
   padding: 8px;
   background-color: #e6e6ff;
