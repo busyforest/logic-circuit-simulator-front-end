@@ -10,6 +10,7 @@ import {DragDropModule} from '@angular/cdk/drag-drop';
     DragDropModule
   ],
   templateUrl: './gate-list.component.html',
+  standalone: true,
   styleUrl: './gate-list.component.css'
 })
 export class GateListComponent {

@@ -5,10 +5,23 @@
     cdkDrag
     [cdkDragFreeDragPosition]="{x: gate.x || 0, y: gate.y || 0}"
     [cdkDragBoundary]="'.canvas'"
+    (cdkDragStarted)="onDragStarted($event, gate)"
     (cdkDragEnded)="onDragEnd($event, gate)"
     (contextmenu)="onRightClick($event, gate)"
+    (dblclick)="onDoubleClick($event, gate)"
+    [ngStyle]="{'z-index': gate.z || 1}"
     class="canvas-gate"
   >
     {{ gate.name }}
+
+    <!-- 真值表区域 -->
+    <div *ngIf="gate.showTruthTable" class="truth-table-popup">
+      <table>
+        <tr *ngFor="let row of getTruthTable(gate)">
+          <td *ngFor="let cell of row">{{ cell }}</td>
+        </tr>
+      </table>
+    </div>
+
   </div>
 </div>

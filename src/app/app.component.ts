@@ -7,6 +7,7 @@ import {GateListComponent} from './gate-list/gate-list.component';
   selector: 'app-root',
   imports: [RouterOutlet, CanvasComponent, GateListComponent],
   templateUrl: './app.component.html',
+  standalone: true,
   styleUrl: './app.component.css'
 })
 export class AppComponent {
