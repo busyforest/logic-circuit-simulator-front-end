@@ -1,0 +1,10 @@
+
+<form (ngSubmit)="login()" class="login-form">
+  <h2>Login</h2>
+  <label>现在不涉及后端，默认用户名admin，密码123456</label>
+  <input [(ngModel)]="username" name="username" placeholder="用户名" required />
+  <br />
+  <input [(ngModel)]="password" name="password" type="password" placeholder="密码" required />
+  <br />
+  <button type="submit">登录</button>
+</form>
