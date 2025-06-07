@@ -17,9 +17,7 @@ export class GateListComponent {
   gates: Gate[] = [
     {id: 1, name: 'AND', input: 0, output: 0},
     {id: 2, name: 'OR', input: 0, output: 0},
-    {id: 3, name: 'NOT', input: 0, output: 0},
-    {id: 4, name: 'IN', input: 0, output: 0},
-    {id: 5, name: 'OUT', input: 0, output: 0}
+    {id: 3, name: 'NOT', input: 0, output: 0}
   ]
   onDragStart(event: DragEvent, gate: Gate) {
     event.dataTransfer?.setData('application/json', JSON.stringify(gate));
