@@ -36,8 +36,7 @@
     }"
     class="canvas-gate"
   >
-    {{ gate.name }}
-
+    <img [src]="gate.icon" [alt]="gate.name" class="gate-icon" />
     <!-- 真值表区域 -->
     <div *ngIf="gate.showTruthTable" class="truth-table-popup">
       <table>

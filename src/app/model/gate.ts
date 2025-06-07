@@ -8,4 +8,6 @@ export interface Gate {
   z?: number; // 控制显示层级
   showTruthTable?: boolean; // 控制是否显示真值表
   connections?: number[]; // 添加连接信息
+  icon?: string;
 }
+
