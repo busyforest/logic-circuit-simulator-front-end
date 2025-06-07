@@ -19,7 +19,7 @@ export class LoginComponent {
   login() {
     // 假设登录验证成功
     if (this.username === 'admin' && this.password === '123456') {
-      this.router.navigate(['/editor']);
+      this.router.navigate(['/user_center']);
     } else {
       alert('用户名或密码错误');
     }

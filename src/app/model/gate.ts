@@ -1,5 +1,6 @@
 export interface Gate {
   id: number;
+  typeId:number;
   name: string;
   input: number[];
   output: number;

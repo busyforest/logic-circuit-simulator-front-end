@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import {CdkDrag, CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
 import { Gate } from '../model/gate';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
+import {HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-canvas',
@@ -10,21 +11,19 @@ import {NgForOf, NgIf, NgStyle} from '@angular/common';
     CdkDrag,
     NgForOf,
     NgIf,
-    NgStyle
+    NgStyle,
   ],
   standalone: true,
-  styleUrls: ['./canvas.component.css']
+  styleUrls: ['./canvas.component.css'],
 })
 export class CanvasComponent {
   canvasGates: Gate[] = [];
   currentMaxZIndex = 1; // 控制显示层级
-
   selectedGates: Gate[] = [];
   connectingMode: 'connect' | 'disconnect' | null = null;
   connectionPaths: { d: string }[] = [];
 
   isDeleteMode = false;
-
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
     this.currentMaxZIndex++;
@@ -293,4 +292,53 @@ export class CanvasComponent {
 
     this.connectionPaths = paths;
   }
+  // 保存电路图，发送给后端
+  onSaveButtonClicked() {
+    const components = this.canvasGates.map((gate: Gate) => ({
+      componentTypeId: gate.typeId,
+      label: gate.name,
+      posX: gate.x ?? 0,
+      posY: gate.y ?? 0,
+      inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
+      outputState: JSON.stringify([gate.output]),
+    }));
+
+    const wires: any[] = [];
+    // 从每个 gate 的 connections 中生成 wire 信息
+    for (const fromGate of this.canvasGates) {
+      if (!fromGate.connections) continue;
+
+      for (let i = 0; i < fromGate.connections.length; i++) {
+        const toId = fromGate.connections[i];
+        const toGate = this.canvasGates.find(g => g.id === toId);
+        if (!toGate) continue;
+
+        // 假设 outputSignal 为 fromGate.output，且连接到 toGate.input[i]
+        wires.push({
+          fromComponentId: fromGate.id,
+          fromPortIndex: 0, // 默认为第一个输出
+          toComponentId: toGate.id,
+          toPortIndex: i, // 假设顺序一致，若不一致要用 inputSources 映射
+          signalValue: fromGate.output
+        });
+      }
+    }
+
+    const payload = {
+      userId: 1,
+      name: "test",
+      description: "描述",
+      components,
+      wires,
+    };
+    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
+    this.http.post('http://localhost:8080/api/circuits/save', payload).subscribe({
+      next: () => alert('电路图保存成功！'),
+      error: err => alert('保存失败：' + err.message)
+    });
+  }
+  constructor(private http:HttpClient) {
+
+  }
+
 }
