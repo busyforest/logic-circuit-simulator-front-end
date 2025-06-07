@@ -64,6 +64,9 @@
   <div class="button-group">
     <button (click)="startConnect()">连接</button>
     <button (click)="startDisconnect()">断开连接</button>
+    <button (click)="toggleDeleteMode()">
+      {{ isDeleteMode ? '取消删除' : '删除门' }}
+    </button>
   </div>
   <div class="button-group">
     <button class="save">保存</button>

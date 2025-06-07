@@ -23,6 +23,8 @@ export class CanvasComponent {
   connectingMode: 'connect' | 'disconnect' | null = null;
   connectionPaths: { d: string }[] = [];
 
+  isDeleteMode = false;
+
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
     this.currentMaxZIndex++;
@@ -86,11 +88,28 @@ export class CanvasComponent {
 
   onRightClick(event: MouseEvent, gate: Gate) {
     event.preventDefault(); // 阻止浏览器默认右键菜单
-    const index = this.canvasGates.findIndex(g => g.id === gate.id);
-    if (index !== -1) {
-      this.canvasGates.splice(index, 1);
-      this.updateConnectionPaths();
+    // const index = this.canvasGates.findIndex(g => g.id === gate.id);
+    // if (index !== -1) {
+    //   this.canvasGates.splice(index, 1);
+    //   this.updateConnectionPaths();
+    // }
+
+    // 如果不是INPUT门就不让修改
+    if(gate.name !== "INPUT"){
+      return;
     }
+
+    // 切换 output：0 变 1，1 变 0
+    if (gate.output === 0) {
+      gate.output = 1;
+    } else if (gate.output === 1) {
+      gate.output = 0;
+    } else {
+      // 如果不是 0 或 1，默认赋值为 0
+      gate.output = 0;
+    }
+
+    this.updateConnectionPaths(); // 如果修改 output 后需要更新连接路径，调用更新函数
   }
 
   // 只显示当前双击的门的真值表
@@ -143,6 +162,39 @@ export class CanvasComponent {
         this.updateConnectionPaths();
       }
     }
+    else if (this.isDeleteMode) {
+      // 删除门
+      const index = this.canvasGates.findIndex(g => g.id === gate.id);
+      if (index !== -1) {
+        const deletedGate = this.canvasGates[index];
+
+        // 先删除所有与该门相关的连接：遍历所有门的 connections
+        for (const g of this.canvasGates) {
+          if (g.connections) {
+            // 过滤掉连接中指向或来自删除门的id
+            g.connections = g.connections.filter(connId => connId !== deletedGate.id);
+          }
+
+          // 更新 input，移除与被删门output相同的值
+          if (g.input) {
+            g.input = g.input.filter(inputVal => inputVal !== deletedGate.output);
+          }
+
+          // 如果有 inputSources，也过滤掉来自删除门的输入来源
+          if (g.inputSources) {
+            g.inputSources = g.inputSources.filter(src => src.id !== deletedGate.id);
+          }
+        }
+
+        // 最后删除该门
+        this.canvasGates.splice(index, 1);
+        // 更新连线
+        this.updateConnectionPaths();
+      }
+
+      // 退出删除模式
+      this.isDeleteMode = false;
+    }
   }
 
   startConnect() {
@@ -153,6 +205,13 @@ export class CanvasComponent {
   startDisconnect(){
     this.selectedGates = [];
     this.connectingMode = 'disconnect';
+  }
+
+  // 切换删除模式
+  toggleDeleteMode() {
+    this.isDeleteMode = !this.isDeleteMode;
+    this.connectingMode = null;
+    this.selectedGates = [];
   }
 
   connectGates(gate1: Gate, gate2: Gate){
@@ -210,6 +269,25 @@ export class CanvasComponent {
         // 直线：从 x1,y1 到 x2,y2
         const d = `M ${x1} ${y1} L ${x2} ${y2}`;
         paths.push({ d });
+
+        // 初始化 inputSources 数组，防止 undefined
+        if (!target.inputSources) {
+          target.inputSources = [];
+        }
+
+        // 查找 target.inputSources 是否已有来自当前 gate 的输入
+        const sourceIndex = target.inputSources.findIndex(src => src.id === gate.id);
+
+        if (sourceIndex !== -1) {
+          // 找到，更新对应值为 gate.output
+          target.inputSources[sourceIndex].value = gate.output;
+        } else {
+          // 没有，新增
+          target.inputSources.push({ id: gate.id, value: gate.output });
+        }
+
+        // 同步更新 target.input 数组 — 保持和 inputSources 顺序一致
+        target.input = target.inputSources.map(src => src.value);
       }
     }
 
