@@ -52,8 +52,10 @@ export class CanvasComponent {
     x = Math.min(Math.max(0, x), canvasRect.width - 35);
     y = Math.min(Math.max(0, y), canvasRect.height - 40);
 
-    gate.x = x;
-    gate.y = y;
+    // gate.x = x;
+    // gate.y = y;
+    gate.pathX = x;
+    gate.pathY = y;
 
     this.updateConnectionPaths();
   }
@@ -70,8 +72,10 @@ export class CanvasComponent {
     x = Math.min(Math.max(0, x), parent.width - 35);
     y = Math.min(Math.max(0, y), parent.height - 40);
 
-    gate.x = x;
-    gate.y = y;
+    // gate.x = x;
+    // gate.y = y;
+    gate.pathX = x;
+    gate.pathY = y;
 
     this.updateConnectionPaths();
   }
@@ -86,6 +90,8 @@ export class CanvasComponent {
         id: Date.now() + Math.random(),
         x: event.clientX - canvasRect.left,
         y: event.clientY - canvasRect.top,
+        pathX: event.clientX - canvasRect.left,
+        pathY: event.clientY - canvasRect.top,
         connections: []
       });
     }
@@ -270,10 +276,10 @@ export class CanvasComponent {
         }
 
         // 斜线起点与终点（从 gate 右侧中心点到 target 左侧中心点）
-        const x1 = (gate.x || 0) + 35;
-        const y1 = (gate.y || 0) + 20;
-        const x2 = (target.x || 0);
-        const y2 = (target.y || 0) + 20;
+        const x1 = (gate.pathX || 0) + 35;
+        const y1 = (gate.pathY || 0) + 20;
+        const x2 = (target.pathX || 0);
+        const y2 = (target.pathY || 0) + 20;
 
         // 直线：从 x1,y1 到 x2,y2
         const d = `M ${x1} ${y1} L ${x2} ${y2}`;
@@ -418,8 +424,10 @@ export class CanvasComponent {
         name: comp.label,
         input: input,
         output: output,
-        x: comp.posX,
-        y: comp.posY,
+        pathX: comp.posX,
+        pathY: comp.posY,
+        x:comp.posX,
+        y:comp.posY,
         z: 1,
         showTruthTable: false,
         connections: [],
