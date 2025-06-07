@@ -1,0 +1,43 @@
+.user-container {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* 左边侧边栏 */
+.sidebar {
+  padding-top: 80px;
+  padding-left: 20px;
+  width: 200px;
+  background-color: #f0f0f0;
+  box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  overflow-y: auto;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin-bottom: 15px;
+}
+
+.sidebar a {
+  text-decoration: none;
+  color: #333;
+  font-weight: bold;
+}
+
+/* 右边内容区域 */
+.content {
+  margin-left: 250px; /* 等于 sidebar 宽度 */
+  height: 100vh;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #fff;
+}
