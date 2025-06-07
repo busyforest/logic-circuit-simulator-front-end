@@ -157,14 +157,34 @@ export class CanvasComponent {
 
   connectGates(gate1: Gate, gate2: Gate){
     gate1.connections = gate1.connections || [];
+
     // 存连接的目标ID，表示箭头方向从gate1指向gate2
     if(!gate1.connections.includes(gate2.id)){
       gate1.connections.push(gate2.id);
+
+      // 添加输入时，检查是否已经由该 gate1 提供
+      if (!gate2.inputSources) gate2.inputSources = [];
+
+      const alreadyConnected = gate2.inputSources.some(source => source.id === gate1.id);
+      if (!alreadyConnected) {
+        gate2.inputSources.push({ id: gate1.id, value: gate1.output });
+        gate2.input = gate2.inputSources.map(source => source.value);
+      }
     }
   }
 
   disconnectGates(gate1: Gate, gate2: Gate){
     gate1.connections = (gate1.connections || []).filter(id => id !== gate2.id);
+
+    const index = gate1.connections.indexOf(gate2.id);
+    if (index !== -1) {
+      gate1.connections.splice(index, 1);
+    }
+
+    if (gate2.inputSources) {
+      gate2.inputSources = gate2.inputSources.filter(source => source.id !== gate1.id);
+      gate2.input = gate2.inputSources.map(source => source.value);
+    }
   }
 
   updateConnectionPaths() {

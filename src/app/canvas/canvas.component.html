@@ -36,6 +36,17 @@
     }"
     class="canvas-gate"
   >
+    <!-- 输出显示 -->
+    <div class="gate-output">
+      Output: {{ gate.output }}
+    </div>
+
+    <!-- 输入显示 -->
+    <!-- 用于测试 -->
+    <div class="gate-input">
+      Input: {{ gate.input.join(', ') }}
+    </div>
+
     <img [src]="gate.icon" [alt]="gate.name" class="gate-icon" />
     <!-- 真值表区域 -->
     <div *ngIf="gate.showTruthTable" class="truth-table-popup">
