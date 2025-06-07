@@ -331,10 +331,54 @@ export class CanvasComponent {
       components,
       wires,
     };
-    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
     this.http.post('http://localhost:8080/api/circuits/save', payload).subscribe({
       next: () => alert('电路图保存成功！'),
       error: err => alert('保存失败：' + err.message)
+    });
+  }
+  onRunButtonClicked(){
+    const components = this.canvasGates.map((gate: Gate) => ({
+      componentTypeId: gate.typeId,
+      label: gate.name,
+      tempId:gate.name,
+      posX: gate.x ?? 0,
+      posY: gate.y ?? 0,
+      inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
+      outputState: JSON.stringify([gate.output]),
+    }));
+
+    const wires: any[] = [];
+    // 从每个 gate 的 connections 中生成 wire 信息
+    for (const fromGate of this.canvasGates) {
+      if (!fromGate.connections) continue;
+
+      for (let i = 0; i < fromGate.connections.length; i++) {
+        const toId = fromGate.connections[i];
+        const toGate = this.canvasGates.find(g => g.id === toId);
+        if (!toGate) continue;
+
+        // 假设 outputSignal 为 fromGate.output，且连接到 toGate.input[i]
+        wires.push({
+          fromTempId: fromGate.name,
+          fromPortIndex: 0, // 默认为第一个输出
+          toTempId: toGate.name,
+          signalValue:fromGate.output,
+          toPortIndex: i, // 假设顺序一致，若不一致要用 inputSources 映射
+        });
+      }
+    }
+
+    const payload = {
+      userId: 1,
+      name: "test",
+      description: "描述",
+      components,
+      wires,
+    };
+    // console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
+    this.http.post('http://localhost:8080/api/circuits/simulate', payload).subscribe({
+      next: () => alert('成功返回计算结果'),
+      error: err => alert('计算失败：' + err.message)
     });
   }
   constructor(private http:HttpClient) {
