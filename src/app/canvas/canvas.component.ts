@@ -4,6 +4,16 @@ import { Gate } from '../model/gate';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 
+const typeIdToIconMap: Record<number, string> = {
+  1: '/assets/gates/and.png',
+  2: '/assets/gates/or.png',
+  3: '/assets/gates/not.png',
+  4: '/assets/gates/nand.png',
+  5: '/assets/gates/nor.png',
+  6: '/assets/gates/input.png',
+  7: '/assets/gates/output.png'
+};
+
 @Component({
   selector: 'app-canvas',
   templateUrl: './canvas.component.html',
@@ -94,7 +104,7 @@ export class CanvasComponent {
     // }
 
     // 如果不是INPUT门就不让修改
-    if(gate.name !== "INPUT"){
+    if (gate.typeId !== 6) {
       return;
     }
 
@@ -382,7 +392,60 @@ export class CanvasComponent {
     });
   }
   constructor(private http:HttpClient) {
-
   }
 
+  restoreFromAssetJson() {
+    this.http.get<any>('assets/json/test.json').subscribe(data => {
+      this.restoreFromJsonFromData(data);
+    });
+  }
+
+  restoreFromJsonFromData(data : any){
+    const tempIdToGateMap = new Map<string, Gate>();
+    let idCounter = 1;
+
+    // 1. 转换 components 到 canvasGates
+    this.canvasGates = data.components.map((comp: any) => {
+      const input = JSON.parse(comp.inputState || '[]').map((v: any) => v ?? null);
+      const outputArray = JSON.parse(comp.outputState || '[]');
+      const output = outputArray.length > 0 ? outputArray[0] : 0;
+
+      const icon = typeIdToIconMap[comp.componentTypeId] || 'default.png';
+
+      const gate: Gate = {
+        id: comp.tempId,
+        typeId: comp.componentTypeId,
+        name: comp.label,
+        input: input,
+        output: output,
+        x: comp.posX,
+        y: comp.posY,
+        z: 1,
+        showTruthTable: false,
+        connections: [],
+        icon: icon,
+        inputSources: []
+      };
+
+      tempIdToGateMap.set(comp.tempId, gate);
+      return gate;
+    });
+
+    // 2. 根据 wires 设置连接
+    for (const wire of data.wires) {
+      const fromGate = tempIdToGateMap.get(wire.fromTempId);
+      const toGate = tempIdToGateMap.get(wire.toTempId);
+      if (!fromGate || !toGate) continue;
+
+      // 添加连接
+      fromGate.connections!.push(toGate.id);
+
+      // 设置 input
+      toGate.input[wire.toPortIndex] = wire.signalValue;
+      toGate.inputSources!.push({ id: fromGate.id, value: wire.signalValue });
+    }
+
+    // 3. 更新连线渲染
+    this.updateConnectionPaths();
+  }
 }

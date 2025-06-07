@@ -1,0 +1,131 @@
+{
+    "id": 5,
+  "userId": 1,
+  "name": "测试电路1",
+  "description": "这是一个测试电路",
+  "isPublic": true,
+  "components": [
+    {
+      "tempId": "G1",
+      "componentTypeId": 1,
+      "label": "G1",
+      "posX": 300,
+      "posY": 200,
+      "inputState": "[null, null]",
+      "outputState": "[]"
+    },
+    {
+      "tempId": "A",
+      "componentTypeId": 6,
+      "label": "A",
+      "posX": 100,
+      "posY": 150,
+      "inputState": "[]",
+      "outputState": "[1]"
+    },
+    {
+      "tempId": "B",
+      "componentTypeId": 6,
+      "label": "B",
+      "posX": 100,
+      "posY": 250,
+      "inputState": "[]",
+      "outputState": "[0]"
+    },
+    {
+      "tempId": "C",
+      "componentTypeId": 6,
+      "label": "C",
+      "posX": 100,
+      "posY": 350,
+      "inputState": "[]",
+      "outputState": "[1]"
+    },
+    {
+        "tempId": "D",
+      "componentTypeId": 6,
+      "label": "D",
+      "posX": 100,
+      "posY": 350,
+      "inputState": "[]",
+      "outputState": "[1]"
+    },{
+      "tempId": "G3",
+      "componentTypeId": 1,
+      "label": "G3",
+      "posX": 300,
+      "posY": 300,
+      "inputState": "[null, null]",
+      "outputState": "[]"
+    },
+    {
+      "tempId": "G2",
+      "componentTypeId": 2,
+      "label": "G2",
+      "posX": 300,
+      "posY": 300,
+      "inputState": "[null, null]",
+      "outputState": "[]"
+    },
+    {
+      "tempId": "OUT",
+      "componentTypeId": 7,
+      "label": "OUT",
+      "posX": 500,
+      "posY": 200,
+      "inputState": "[null]",
+      "outputState": "[]"
+    }
+  ],
+  "wires": [
+    {
+      "fromTempId": "A",
+      "fromPortIndex": 0,
+      "toTempId": "G1",
+      "toPortIndex": 0,
+      "signalValue": 1
+    },
+    {
+      "fromTempId": "B",
+      "fromPortIndex": 0,
+      "toTempId": "G1",
+      "toPortIndex": 1,
+      "signalValue": 0
+    },
+    {
+      "fromTempId": "G2",
+      "fromPortIndex": 0,
+      "toTempId": "OUT",
+      "toPortIndex": 0,
+      "signalValue": 0
+    },
+    {
+      "fromTempId": "G1",
+      "fromPortIndex": 0,
+      "toTempId": "G2",
+      "toPortIndex": 0,
+      "signalValue": 0
+    },
+    {
+      "fromTempId": "G3",
+      "fromPortIndex": 0,
+      "toTempId": "G2",
+      "toPortIndex": 1,
+      "signalValue": 0
+    },
+    {
+        "fromTempId": "C",
+      "fromPortIndex": 0,
+      "toTempId": "G3",
+      "toPortIndex": 0,
+      "signalValue": 0
+    },
+    {
+        "fromTempId": "D",
+      "fromPortIndex": 0,
+      "toTempId": "G3",
+      "toPortIndex": 1,
+      "signalValue": 0
+    }
+  ]
+}
