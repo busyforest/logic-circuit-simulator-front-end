@@ -23,7 +23,6 @@
   <div
     *ngFor="let gate of canvasGates"
     cdkDrag
-    [cdkDragFreeDragPosition]="{x: gate.x || 0, y: gate.y || 0}"
     [cdkDragBoundary]="'.canvas'"
     (cdkDragStarted)="onDragStarted($event, gate)"
     (cdkDragMoved)="onDragMoved($event, gate)"

@@ -167,29 +167,28 @@ export class CanvasComponent {
     gate1.connections = (gate1.connections || []).filter(id => id !== gate2.id);
   }
 
-  updateConnectionPaths(){
+  updateConnectionPaths() {
     const paths: { d: string }[] = [];
 
-    for(const gate of this.canvasGates){
-      if(!gate.connections){
+    for (const gate of this.canvasGates) {
+      if (!gate.connections) {
         continue;
       }
 
-      for(const targetId of gate.connections){
+      for (const targetId of gate.connections) {
         const target = this.canvasGates.find(g => g.id === targetId);
-        if(!target){
+        if (!target) {
           continue;
         }
 
-        // 绘制箭头从 gate 到 target
-        const x1 = (gate.x || 0) + 35;  // gate 右侧中心点
+        // 斜线起点与终点（从 gate 右侧中心点到 target 左侧中心点）
+        const x1 = (gate.x || 0) + 35;
         const y1 = (gate.y || 0) + 20;
-        const x2 = (target.x || 0);     // target 左侧中心点
+        const x2 = (target.x || 0);
         const y2 = (target.y || 0) + 20;
 
-        const midX = (x1 + x2) / 2;
-        // 折线：先横向到midX，再竖向到目标Y，再横向到目标X
-        const d = `M ${x1} ${y1} L ${midX} ${y1} L ${midX} ${y2} L ${x2} ${y2}`;
+        // 直线：从 x1,y1 到 x2,y2
+        const d = `M ${x1} ${y1} L ${x2} ${y2}`;
         paths.push({ d });
       }
     }
