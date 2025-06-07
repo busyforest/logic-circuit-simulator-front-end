@@ -69,7 +69,7 @@
       {{ isDeleteMode ? '取消删除' : '删除门' }}
     </button>
     <button (click)="onRunButtonClicked()">运行</button>
-    <button (click)="restoreFromAssetJson()">复原</button>
+    <button (click)="restoreFromAssetJson('assets/json/test.json')">复原</button>
   </div>
   <div class="button-group">
     <button class="save" (click)="onSaveButtonClicked()">保存</button>

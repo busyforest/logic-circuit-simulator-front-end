@@ -400,8 +400,8 @@ export class CanvasComponent {
   constructor(private http:HttpClient) {
   }
 
-  restoreFromAssetJson() {
-    this.http.get<any>('assets/json/test.json').subscribe(data => {
+  restoreFromAssetJson(url:string) {
+    this.http.get<any>(url).subscribe(data => {
       this.restoreFromJsonFromData(data);
     });
   }
