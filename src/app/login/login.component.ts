@@ -3,6 +3,7 @@ import {Router, RouterLink} from '@angular/router';
 import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {NgClass, NgIf} from '@angular/common';
+import {SharedService} from '../../shared.service';
 
 @Component({
   selector: 'app-login',
@@ -19,7 +20,9 @@ export class LoginComponent {
   userEmail = '';
   password = '';
 
-  constructor(private router: Router, private http:HttpClient) {}
+  constructor(private router: Router,
+              private http:HttpClient,
+              protected shardService:SharedService) {}
 
   login() {
     const payload = {
@@ -31,6 +34,8 @@ export class LoginComponent {
       next: (response:any)=>{
         console.log(response)
         if(response.code == 200){
+          // 获取全局用户名
+          this.shardService.username = response.data.name;
           this.router.navigate(['/user_center']);
 
         }else{

@@ -1,6 +1,7 @@
 <div class="user-container">
   <!-- 左侧边栏 -->
   <div class="sidebar">
+    <h3 class = "username">欢迎，{{this.sharedService.username}}</h3>
     <ul>
       <li><a [routerLink]="['/user_center']">📁 我的文件</a></li>
       <li><a [routerLink]="['/editor']">➕ 新建文件</a></li>

@@ -5,6 +5,7 @@ import { Injectable } from '@angular/core';
 })
 export class SharedService {
   public isBarOpen: boolean = false;
+  public username: string = "";
   constructor() {
 
   }
