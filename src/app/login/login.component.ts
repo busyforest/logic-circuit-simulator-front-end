@@ -4,6 +4,8 @@ import {FormsModule} from '@angular/forms';
 import {HttpClient} from '@angular/common/http';
 import {NgClass, NgIf} from '@angular/common';
 import {SharedService} from '../../shared.service';
+import {Circuit} from '../model/circuit';
+import {map, Observable} from 'rxjs';
 
 @Component({
   selector: 'app-login',
@@ -22,7 +24,7 @@ export class LoginComponent {
 
   constructor(private router: Router,
               private http:HttpClient,
-              protected shardService:SharedService) {}
+              protected sharedService:SharedService) {}
 
   login() {
     const payload = {
@@ -30,15 +32,17 @@ export class LoginComponent {
       password:this.password,
     }
     // 假设登录验证成功
-    this.http.post('http://localhost:8080/api/user/login', payload).subscribe({
+    this.http.post('http://localhost:8080/webpj/user/login', payload).subscribe({
       next: (response:any)=>{
-        console.log(response)
         if(response.code == 200){
-          this.shardService.isLoggedIn = true;
+          this.sharedService.isLoggedIn = true;
           // 获取全局用户名
-          this.shardService.username = response.data.name;
+          this.sharedService.username = response.data.name;
+          this.sharedService.userId = response.data.id;
           this.router.navigate(['/user_center']);
-
+          this.getCircuits().subscribe(data => {
+            this.sharedService.circuits = data;
+          });
         }else{
           alert('登录失败：' + response.message);
         }
@@ -46,4 +50,10 @@ export class LoginComponent {
       error: err => alert('登录失败：' + err.message)
     });
   }
+  getCircuits(): Observable<Circuit[]> {
+    return this.http.get<any>(`http://localhost:8080/webpj/circuits/listByUser?userId=${this.sharedService.userId}`).pipe(
+      map(response => response.data as Circuit[])
+    );
+  }
+
 }

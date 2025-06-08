@@ -94,3 +94,19 @@
   white-space: nowrap;
   pointer-events: none;
 }
+.row-container{
+  display: flex;
+}
+.describe-place {
+  width: 170px;
+  height: 300px;
+
+  text-align: left;
+  vertical-align: top;
+  padding: 4px;
+  resize: none;
+  box-sizing: border-box;
+}
+.describe-column{
+  padding-left: 30px;
+}

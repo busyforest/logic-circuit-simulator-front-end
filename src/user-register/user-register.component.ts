@@ -20,7 +20,7 @@ export class UserRegisterComponent implements OnInit {
   password = '';
   email = '';
   register() {
-    const url = "http://localhost:8080/api/user/register";
+    const url = "http://localhost:8080/webpj/user/register";
     const httpOptions = {
       headers: new HttpHeaders({'Content-Type': 'application/json'}),
     };

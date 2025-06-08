@@ -12,10 +12,9 @@
   <!-- 右侧内容 -->
   <div class="content">
     <h2>文件列表</h2>
-    <ul>
-      <li>文件 A</li>
-      <li>文件 B</li>
-      <li>文件 C</li>
-    </ul>
+    <div class="circuit-item" *ngFor="let circuit of sharedService.circuits" (click)="onCircuitClicked(circuit.id)">
+      <div class="circuit-name">{{ circuit.name }}</div>
+      <div class="circuit-description">{{ circuit.description || '无描述' }}</div>
+      <div class="circuit-updated">最后修改：{{ circuit.updatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
+    </div>
   </div>
-</div>

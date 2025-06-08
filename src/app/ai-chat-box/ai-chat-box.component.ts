@@ -34,7 +34,7 @@ export class AiChatBoxComponent {
     // 清空输入框
     this.userInput = '';
     let botReply = "";
-    this.http.post("http://localhost:8080/api/ai/query", input).subscribe((response:any)=>{
+    this.http.post("http://localhost:8080/webpj/ai/query", input).subscribe((response:any)=>{
       if(response.code != 200){
         alert("发生错误：" + response.message);
       }else{

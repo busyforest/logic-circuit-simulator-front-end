@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {CdkDrag, CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
 import { Gate } from '../model/gate';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
+import {FormsModule} from '@angular/forms';
+import {ActivatedRoute, Router} from '@angular/router';
+import {SharedService} from '../../shared.service';
 
 const typeIdToIconMap: Record<number, string> = {
   1: '/assets/gates/and.png',
@@ -22,17 +25,20 @@ const typeIdToIconMap: Record<number, string> = {
     NgForOf,
     NgIf,
     NgStyle,
+    FormsModule,
   ],
   standalone: true,
   styleUrls: ['./canvas.component.css'],
 })
-export class CanvasComponent {
+export class CanvasComponent implements OnInit{
   canvasGates: Gate[] = [];
   currentMaxZIndex = 1; // 控制显示层级
   selectedGates: Gate[] = [];
   connectingMode: 'connect' | 'disconnect' | null = null;
   connectionPaths: { d: string }[] = [];
-
+  descriptionContent: string='';
+  circuitId: number | undefined;
+  fileName:string="新建电路"
   isDeleteMode = false;
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
@@ -311,10 +317,11 @@ export class CanvasComponent {
   // 保存电路图，发送给后端
   onSaveButtonClicked() {
     const components = this.canvasGates.map((gate: Gate) => ({
+      tempId:gate.id,
       componentTypeId: gate.typeId,
       label: gate.name,
-      posX: gate.x ?? 0,
-      posY: gate.y ?? 0,
+      posX: gate.pathX ?? 0,
+      posY: gate.pathY ?? 0,
       inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
       outputState: JSON.stringify([gate.output]),
     }));
@@ -331,9 +338,9 @@ export class CanvasComponent {
 
         // 假设 outputSignal 为 fromGate.output，且连接到 toGate.input[i]
         wires.push({
-          fromComponentId: fromGate.id,
+          fromTempId: fromGate.id,
           fromPortIndex: 0, // 默认为第一个输出
-          toComponentId: toGate.id,
+          toTempId: toGate.id,
           toPortIndex: i, // 假设顺序一致，若不一致要用 inputSources 映射
           signalValue: fromGate.output
         });
@@ -341,13 +348,15 @@ export class CanvasComponent {
     }
 
     const payload = {
-      userId: 1,
-      name: "test",
-      description: "描述",
+      userId: this.sharedService.userId,
+      circuitId: this.circuitId,
+      name: this.fileName,
+      description: this.descriptionContent,
       components,
       wires,
     };
-    this.http.post('http://localhost:8080/api/circuits/save', payload).subscribe({
+    console.log(payload);
+    this.http.post('http://localhost:8080/webpj/circuits/save', payload).subscribe({
       next: () => alert('电路图保存成功！'),
       error: err => alert('保存失败：' + err.message)
     });
@@ -392,21 +401,29 @@ export class CanvasComponent {
       wires,
     };
     // console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
-    this.http.post('http://localhost:8080/api/circuits/simulate', payload).subscribe({
+    this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe({
       next: () => alert('成功返回计算结果'),
       error: err => alert('计算失败：' + err.message)
     });
   }
-  constructor(private http:HttpClient) {
+  constructor(private http:HttpClient, private route:ActivatedRoute, private sharedService:SharedService) {
   }
 
-  restoreFromAssetJson(url:string) {
-    this.http.get<any>(url).subscribe(data => {
-      this.restoreFromJsonFromData(data);
-    });
+  restoreByCircuitId(id:number) {
+    this.http.get<any>(`http://localhost:8080/webpj/circuits/load/${id}`).subscribe(
+      response=>{
+        if(response.code!=200){
+          alert("加载历史文件失败："+response.message);
+        }else{
+          console.log(response);
+          this.restoreFromJsonFromData(response.data);
+        }
+      }
+    )
   }
 
   restoreFromJsonFromData(data : any){
+    this.descriptionContent = data.description;
     const tempIdToGateMap = new Map<string, Gate>();
     let idCounter = 1;
 
@@ -447,6 +464,7 @@ export class CanvasComponent {
 
       // 添加连接
       fromGate.connections!.push(toGate.id);
+      console.log(fromGate.id+": "+ fromGate.connections)
 
       // 设置 input
       toGate.input[wire.toPortIndex] = wire.signalValue;
@@ -455,5 +473,13 @@ export class CanvasComponent {
 
     // 3. 更新连线渲染
     this.updateConnectionPaths();
+  }
+
+  ngOnInit() {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+    if(id!=0){
+      this.circuitId = id;
+      this.restoreByCircuitId(id);
+    }
   }
 }

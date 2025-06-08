@@ -1,77 +1,85 @@
 <h2>Canvas</h2>
+<div class="row-container">
+  <div class="canvas-column">
+    <div class="canvas" (drop)="dropFromOutside($event)" (dragover)="allowDrop($event)">
 
-<div class="canvas" (drop)="dropFromOutside($event)" (dragover)="allowDrop($event)">
+      <!-- SVG 连接线图层 -->
+      <svg class="connection-layer" width="1000" height="600">
+        <defs>
+          <marker id="arrowhead" markerWidth="10" markerHeight="7"
+                  refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth">
+            <polygon points="0 0, 10 3.5, 0 7" fill="black"/>
+          </marker>
+        </defs>
 
-  <!-- SVG 连接线图层 -->
-  <svg class="connection-layer" width="1000" height="600">
-    <defs>
-      <marker id="arrowhead" markerWidth="10" markerHeight="7"
-              refX="10" refY="3.5" orient="auto" markerUnits="strokeWidth">
-        <polygon points="0 0, 10 3.5, 0 7" fill="black" />
-      </marker>
-    </defs>
+        <path *ngFor="let path of connectionPaths"
+              [attr.d]="path.d"
+              stroke="black"
+              fill="none"
+              stroke-width="2"
+              marker-end="url(#arrowhead)"/>
+      </svg>
 
-    <path *ngFor="let path of connectionPaths"
-          [attr.d]="path.d"
-          stroke="black"
-          fill="none"
-          stroke-width="2"
-          marker-end="url(#arrowhead)" />
-  </svg>
-
-  <!-- 元件图层 -->
-  <div
-    *ngFor="let gate of canvasGates"
-    cdkDrag
-    [cdkDragFreeDragPosition]="{x:gate.x||0,y:gate.y||0}"
-    [cdkDragBoundary]="'.canvas'"
-    (cdkDragStarted)="onDragStarted($event, gate)"
-    (cdkDragMoved)="onDragMoved($event, gate)"
-    (cdkDragEnded)="onDragEnd($event, gate)"
-    (contextmenu)="onRightClick($event, gate)"
-    (dblclick)="onDoubleClick($event, gate)"
-    (click)="onGateClick(gate)"
-    [ngStyle]="{
+      <!-- 元件图层 -->
+      <div
+        *ngFor="let gate of canvasGates"
+        cdkDrag
+        [cdkDragFreeDragPosition]="{x:gate.x||0,y:gate.y||0}"
+        [cdkDragBoundary]="'.canvas'"
+        (cdkDragStarted)="onDragStarted($event, gate)"
+        (cdkDragMoved)="onDragMoved($event, gate)"
+        (cdkDragEnded)="onDragEnd($event, gate)"
+        (contextmenu)="onRightClick($event, gate)"
+        (dblclick)="onDoubleClick($event, gate)"
+        (click)="onGateClick(gate)"
+        [ngStyle]="{
       'z-index': gate.z || 1,
       'border-color': selectedGates.includes(gate) ? 'red' : '#1b5e20'
     }"
-    class="canvas-gate"
-  >
-    <!-- 输出显示 -->
-    <div class="gate-output">
-      Output: {{ gate.output }}
+        class="canvas-gate"
+      >
+        <!-- 输出显示 -->
+        <div class="gate-output">
+          Output: {{ gate.output }}
+        </div>
+
+        <!-- 输入显示 -->
+        <!-- 用于测试 -->
+        <div class="gate-input">
+          Input: {{ gate.input.join(', ') }}
+        </div>
+
+        <img [src]="gate.icon" [alt]="gate.name" class="gate-icon"/>
+        <!-- 真值表区域 -->
+        <div *ngIf="gate.showTruthTable" class="truth-table-popup">
+          <table>
+            <tr *ngFor="let row of getTruthTable(gate)">
+              <td *ngFor="let cell of row">{{ cell }}</td>
+            </tr>
+          </table>
+        </div>
+
+      </div>
     </div>
 
-    <!-- 输入显示 -->
-    <!-- 用于测试 -->
-    <div class="gate-input">
-      Input: {{ gate.input.join(', ') }}
+    <div class="button-container">
+      <div class="button-group">
+        <button (click)="startConnect()">连接</button>
+        <button (click)="startDisconnect()">断开连接</button>
+        <button (click)="toggleDeleteMode()">
+          {{ isDeleteMode ? '取消删除' : '删除门' }}
+        </button>
+        <button (click)="onRunButtonClicked()">运行</button>
+      </div>
+      <h3>File Name:</h3>
+      <input [(ngModel)]="fileName"/>
+      <div class="button-group">
+        <button class="save" (click)="onSaveButtonClicked()">保存</button>
+      </div>
     </div>
-
-    <img [src]="gate.icon" [alt]="gate.name" class="gate-icon" />
-    <!-- 真值表区域 -->
-    <div *ngIf="gate.showTruthTable" class="truth-table-popup">
-      <table>
-        <tr *ngFor="let row of getTruthTable(gate)">
-          <td *ngFor="let cell of row">{{ cell }}</td>
-        </tr>
-      </table>
-    </div>
-
   </div>
-</div>
-
-<div class="button-container">
-  <div class="button-group">
-    <button (click)="startConnect()">连接</button>
-    <button (click)="startDisconnect()">断开连接</button>
-    <button (click)="toggleDeleteMode()">
-      {{ isDeleteMode ? '取消删除' : '删除门' }}
-    </button>
-    <button (click)="onRunButtonClicked()">运行</button>
-    <button (click)="restoreFromAssetJson('assets/json/test.json')">复原</button>
-  </div>
-  <div class="button-group">
-    <button class="save" (click)="onSaveButtonClicked()">保存</button>
+  <div class="describe-column">
+    <h3>Description: </h3>
+    <textarea class="describe-place" [(ngModel)]="descriptionContent"></textarea>
   </div>
 </div>

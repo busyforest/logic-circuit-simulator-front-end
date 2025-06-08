@@ -56,3 +56,35 @@
   font-family: "Songti SC", serif;
   color: #203047;
 }
+.circuit-item {
+  border: 1px solid #dcdcdc;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+  background-color: #fafafa;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.circuit-item:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+
+.circuit-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #2c3e50;
+  margin-bottom: 5px;
+}
+
+.circuit-description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+.circuit-updated {
+  font-size: 12px;
+  color: #888;
+}
