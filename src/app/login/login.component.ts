@@ -34,6 +34,7 @@ export class LoginComponent {
       next: (response:any)=>{
         console.log(response)
         if(response.code == 200){
+          this.shardService.isLoggedIn = true;
           // 获取全局用户名
           this.shardService.username = response.data.name;
           this.router.navigate(['/user_center']);
