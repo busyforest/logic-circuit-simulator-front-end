@@ -1,0 +1,26 @@
+<!-- 遮罩层 -->
+<div
+  class="sidebar-backdrop"
+  *ngIf="sharedService.isBarOpen"
+  (click)="closeSidebar()">
+</div>
+
+<!-- 侧边栏 -->
+<div class="sidebar" [class.open]="sharedService.isBarOpen" (click)="$event.stopPropagation()">
+  <h3>嗨！有什么可以帮你的吗？</h3>
+
+  <!-- 聊天记录 -->
+  <div class="chat-window">
+    <div *ngFor="let message of chatMessages">
+      <div [ngClass]="{ 'user': message.sender === 'user', 'bot': message.sender === 'bot' }">
+        {{ message.text }}
+      </div>
+    </div>
+  </div>
+
+  <!-- 输入框 -->
+  <form (ngSubmit)="sendMessage()">
+    <input [(ngModel)]="userInput" name="userInput" required placeholder="请输入内容..." />
+    <button type="submit">发送</button>
+  </form>
+</div>
