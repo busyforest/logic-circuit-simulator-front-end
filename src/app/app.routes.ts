@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './login/login.component';
 import { CircuitEditorComponent} from './circuit-editor/circuit-editor.component';
 import {UserCenterComponent} from './user-center/user-center.component';
-import {UserRegisterComponent} from '../user-register/user-register.component';
+import {UserRegisterComponent} from './user-register/user-register.component';
 import {AuthGuard} from '../auth.guard';
 
 export const routes: Routes = [

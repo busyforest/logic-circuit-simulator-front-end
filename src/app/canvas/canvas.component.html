@@ -14,7 +14,7 @@
 
         <path *ngFor="let path of connectionPaths"
               [attr.d]="path.d"
-              stroke="black"
+              [attr.stroke]="path.color"
               fill="none"
               stroke-width="2"
               marker-end="url(#arrowhead)"/>
@@ -70,6 +70,7 @@
           {{ isDeleteMode ? '取消删除' : '删除门' }}
         </button>
         <button (click)="onRunButtonClicked()">运行</button>
+        <button (click)="onSingleRunButtonClicked()">单步运行</button>
       </div>
       <h3>File Name:</h3>
       <input [(ngModel)]="fileName"/>

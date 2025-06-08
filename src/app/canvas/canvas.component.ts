@@ -1,11 +1,12 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, input, OnInit} from '@angular/core';
 import {CdkDrag, CdkDragEnd, CdkDragMove, CdkDragStart} from '@angular/cdk/drag-drop';
 import { Gate } from '../model/gate';
 import {NgForOf, NgIf, NgStyle} from '@angular/common';
 import {HttpClient} from '@angular/common/http';
 import {FormsModule} from '@angular/forms';
-import {ActivatedRoute, Router} from '@angular/router';
+import {ActivatedRoute, ChildActivationEnd, Router} from '@angular/router';
 import {SharedService} from '../../shared.service';
+import {EvaluationAnimationStep} from '../model/evaluation-animation-step';
 
 const typeIdToIconMap: Record<number, string> = {
   1: '/assets/gates/and.png',
@@ -35,11 +36,14 @@ export class CanvasComponent implements OnInit{
   currentMaxZIndex = 1; // 控制显示层级
   selectedGates: Gate[] = [];
   connectingMode: 'connect' | 'disconnect' | null = null;
-  connectionPaths: { d: string }[] = [];
+  connectionPaths: { d: string, color:string}[] = [];
   descriptionContent: string='';
   circuitId: number | undefined;
   fileName:string="新建电路"
+  steps: EvaluationAnimationStep[] = [];
   isDeleteMode = false;
+  singleRunIndex = 0;
+  isSingleRunMode = false;
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
     this.currentMaxZIndex++;
@@ -268,46 +272,31 @@ export class CanvasComponent implements OnInit{
   }
 
   updateConnectionPaths() {
-    const paths: { d: string }[] = [];
+    const paths: { d: string, color: string}[] = [];
 
     for (const gate of this.canvasGates) {
-      if (!gate.connections) {
-        continue;
-      }
+      if (!gate.connections) continue;
 
       for (const targetId of gate.connections) {
         const target = this.canvasGates.find(g => g.id === targetId);
-        if (!target) {
-          continue;
-        }
+        if (!target) continue;
 
-        // 斜线起点与终点（从 gate 右侧中心点到 target 左侧中心点）
         const x1 = (gate.pathX || 0) + 35;
         const y1 = (gate.pathY || 0) + 20;
         const x2 = (target.pathX || 0);
         const y2 = (target.pathY || 0) + 20;
 
-        // 直线：从 x1,y1 到 x2,y2
         const d = `M ${x1} ${y1} L ${x2} ${y2}`;
-        paths.push({ d });
+        paths.push({ d ,color:"black"});
 
-        // 初始化 inputSources 数组，防止 undefined
-        if (!target.inputSources) {
-          target.inputSources = [];
-        }
-
-        // 查找 target.inputSources 是否已有来自当前 gate 的输入
+        // 同步输入逻辑
+        if (!target.inputSources) target.inputSources = [];
         const sourceIndex = target.inputSources.findIndex(src => src.id === gate.id);
-
         if (sourceIndex !== -1) {
-          // 找到，更新对应值为 gate.output
           target.inputSources[sourceIndex].value = gate.output;
         } else {
-          // 没有，新增
           target.inputSources.push({ id: gate.id, value: gate.output });
         }
-
-        // 同步更新 target.input 数组 — 保持和 inputSources 顺序一致
         target.input = target.inputSources.map(src => src.value);
       }
     }
@@ -365,46 +354,209 @@ export class CanvasComponent implements OnInit{
     const components = this.canvasGates.map((gate: Gate) => ({
       componentTypeId: gate.typeId,
       label: gate.name,
-      tempId:gate.name,
-      posX: gate.x ?? 0,
-      posY: gate.y ?? 0,
+      tempId:gate.id,
+      posX: gate.pathX ?? 0,
+      posY: gate.pathY ?? 0,
       inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
       outputState: JSON.stringify([gate.output]),
     }));
 
     const wires: any[] = [];
-    // 从每个 gate 的 connections 中生成 wire 信息
+// 用于跟踪每个 gate 的输入端口使用情况
+    const inputPortUsageMap: { [gateId: string]: boolean[] } = {};
+
     for (const fromGate of this.canvasGates) {
       if (!fromGate.connections) continue;
 
-      for (let i = 0; i < fromGate.connections.length; i++) {
-        const toId = fromGate.connections[i];
+      for (const toId of fromGate.connections) {
         const toGate = this.canvasGates.find(g => g.id === toId);
         if (!toGate) continue;
 
-        // 假设 outputSignal 为 fromGate.output，且连接到 toGate.input[i]
+        // 初始化该目标 gate 的端口使用情况
+        if (!inputPortUsageMap[toGate.id]) {
+          inputPortUsageMap[toGate.id] = new Array(toGate.input.length).fill(false);
+        }
+
+        // 找到第一个未被占用的输入端口
+        const inputPorts = inputPortUsageMap[toGate.id];
+        const availableIndex = inputPorts.findIndex(used => !used);
+
+        if (availableIndex === -1) {
+          console.warn(`目标门 ${toGate.name} 的所有输入端口都被占用了，跳过连接`);
+          continue;
+        }
+
+        // 标记该端口为已用
+        inputPorts[availableIndex] = true;
+
+        // 添加线
         wires.push({
-          fromTempId: fromGate.name,
-          fromPortIndex: 0, // 默认为第一个输出
-          toTempId: toGate.name,
-          signalValue:fromGate.output,
-          toPortIndex: i, // 假设顺序一致，若不一致要用 inputSources 映射
+          fromTempId: fromGate.id,
+          fromPortIndex: 0, // 假设都是单输出
+          toTempId: toGate.id,
+          signalValue: fromGate.output,
+          toPortIndex: availableIndex
         });
       }
     }
-
     const payload = {
-      userId: 1,
-      name: "test",
-      description: "描述",
+      userId: this.sharedService.userId,
+      name: this.fileName,
+      description: this.descriptionContent,
       components,
       wires,
     };
-    // console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
-    this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe({
-      next: () => alert('成功返回计算结果'),
-      error: err => alert('计算失败：' + err.message)
-    });
+
+    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
+    this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
+      (response:any)=>{
+        if(response.code!=200){
+          alert("计算失败：" + response.message);
+        }else{}
+        this.restoreFromJsonFromData(response.data);
+      }
+    );
+  }
+  onSingleRunButtonClicked() {
+    if(this.isSingleRunMode){
+        if(this.singleRunIndex < this.steps.length) {
+          this.singleRun(this.steps[this.singleRunIndex]);
+        }else{
+          alert("已经执行完毕！")
+        }
+    }else{
+      this.isSingleRunMode = true;
+      const components = this.canvasGates.map((gate: Gate) => ({
+        componentTypeId: gate.typeId,
+        label: gate.name,
+        tempId: gate.id,
+        posX: gate.pathX ?? 0,
+        posY: gate.pathY ?? 0,
+        inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
+        outputState: JSON.stringify([gate.output]),
+      }));
+
+      const wires: any[] = [];
+      // 用于跟踪每个 gate 的输入端口使用情况
+      const inputPortUsageMap: { [gateId: string]: boolean[] } = {};
+
+      for (const fromGate of this.canvasGates) {
+        if (!fromGate.connections) continue;
+
+        for (const toId of fromGate.connections) {
+          const toGate = this.canvasGates.find(g => g.id === toId);
+          if (!toGate) continue;
+
+          // 初始化该目标 gate 的端口使用情况
+          if (!inputPortUsageMap[toGate.id]) {
+            inputPortUsageMap[toGate.id] = new Array(toGate.input.length).fill(false);
+          }
+
+          // 找到第一个未被占用的输入端口
+          const inputPorts = inputPortUsageMap[toGate.id];
+          const availableIndex = inputPorts.findIndex(used => !used);
+
+          if (availableIndex === -1) {
+            console.warn(`目标门 ${toGate.name} 的所有输入端口都被占用了，跳过连接`);
+            continue;
+          }
+
+          // 标记该端口为已用
+          inputPorts[availableIndex] = true;
+
+          // 添加线
+          wires.push({
+            fromTempId: fromGate.id,
+            fromPortIndex: 0, // 假设都是单输出
+            toTempId: toGate.id,
+            signalValue: fromGate.output,
+            toPortIndex: availableIndex
+          });
+        }
+      }
+      const payload = {
+        userId: this.sharedService.userId,
+        name: this.fileName,
+        description: this.descriptionContent,
+        components,
+        wires,
+      };
+
+      console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
+      this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
+        (response: any) => {
+          const orderMap = new Map<string, number>();
+          response.data.evaluationOrder.forEach((tempId: string, index: number) => {
+            orderMap.set(tempId, index);
+          });
+
+          response.data.evaluationSteps.forEach((step: {
+            label: string;
+            componentTypeId: any;
+            newInputState: any;
+            newOutputState: any;
+          }) => {
+            const order = orderMap.get(step.label) ?? 0;
+            this.steps.push({
+              tempId: step.label,
+              typeId: step.componentTypeId,
+              newInput: step.newInputState,
+              newOutput: step.newOutputState,
+              order: order
+            });
+          });
+          console.log(this.steps);
+          this.singleRun(this.steps[0]);
+        });
+    }
+    this.singleRunIndex++;
+  }
+// {
+//   "tempId": "40",
+//   "typeId": 3,
+//   "newInput": [
+//     0
+//   ],
+//   "newOutput": [
+//     1
+//   ],
+//   "order": 2
+// }
+
+singleRun(step: EvaluationAnimationStep){
+      for (const gate of this.canvasGates){
+        if(Number(step.tempId) == gate.id){
+          gate.input = step.newInput;
+          gate.output = step.newOutput;
+          if(gate.typeId==7){
+            // @ts-ignore
+            gate.output = gate.input;
+          }
+          this.selectedGates.push(gate);
+        }
+        // @ts-ignore
+        for(const child of gate.connections){
+          if(child == Number(step.tempId)){
+            this.selectedGates.push(gate);
+            let toGate:Gate;
+            for(const gate1 of this.canvasGates){
+              if(gate1.id == child){
+                toGate = gate1;
+              }
+            }
+            const x1 = (gate.pathX || 0) + 35;
+            const y1 = (gate.pathY || 0) + 20;
+            // @ts-ignore
+            const x2 = (toGate.pathX || 0);
+            // @ts-ignore
+            const y2 = (toGate.pathY || 0) + 20;
+
+            const d = `M ${x1} ${y1} L ${x2} ${y2}`;
+
+            this.connectionPaths.push({d,color:"red"});
+          }
+        }
+      }
   }
   constructor(private http:HttpClient, private route:ActivatedRoute, private sharedService:SharedService) {
   }

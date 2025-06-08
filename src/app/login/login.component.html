@@ -12,7 +12,7 @@
   <br />
 
   <!-- 密码 -->
-  <input [(ngModel)]="password" name="password" #passwordField="ngModel"
+  <input [(ngModel)]="password" name="password" type="password" #passwordField="ngModel"
          placeholder="密码" required
          [ngClass]="{'invalid': passwordField.invalid && passwordField.touched}" />
   <div class="error" *ngIf="passwordField.invalid && passwordField.touched">
