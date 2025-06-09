@@ -4,6 +4,7 @@
   </a>
 
   <div class="top-bar-container">
+    <a class="user-name">当前用户：{{sharedService.username}}</a>
     <a [routerLink]="['/user_center']" class="user-center">用户中心</a>
     <a (click)="openSidebar()" class="open-sidebar">AI助手</a>
   </div>

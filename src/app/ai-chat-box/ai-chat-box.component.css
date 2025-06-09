@@ -99,3 +99,8 @@ button[type="submit"] {
 button[type="submit"]:hover {
   background-color: #0b5ed7;
 }
+.bot.loading {
+  font-style: italic;
+  color: #888;
+  padding: 5px 10px;
+}

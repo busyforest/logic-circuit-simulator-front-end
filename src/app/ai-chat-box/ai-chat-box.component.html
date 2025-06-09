@@ -16,8 +16,11 @@
         {{ message.text }}
       </div>
     </div>
+    <!-- 等待中 -->
+    <div *ngIf="isLoading" class="bot loading">
+      正在思考中...
+    </div>
   </div>
-
   <!-- 输入框 -->
   <form (ngSubmit)="sendMessage()">
     <input [(ngModel)]="userInput" name="userInput" required placeholder="请输入内容..." />
