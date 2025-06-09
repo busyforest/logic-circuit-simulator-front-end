@@ -1,0 +1,9 @@
+<div class="template-selector">
+  <h2>选择一个模板开始编辑</h2>
+  <div class="template-grid">
+    <div class="template-card" *ngFor="let tpl of this.sharedService.templates" (click)="selectTemplate(tpl.id)">
+      <h3>{{ tpl.name }}</h3>
+      <p>{{ tpl.description || "暂无描述"}}</p>
+    </div>
+  </div>
+</div>

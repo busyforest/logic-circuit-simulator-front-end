@@ -5,7 +5,7 @@
     <ul>
       <li><a [routerLink]="['/user_center']">📁 我的文件</a></li>
       <li><a [routerLink]="['/editor']">➕ 新建文件</a></li>
-      <li><a [routerLink]="['/editor']">📄 从模版新建</a></li>
+      <li><a [routerLink]="['/templates']">📄 从模版新建</a></li>
     </ul>
   </div>
 
@@ -14,7 +14,9 @@
     <h2>文件列表</h2>
     <div class="circuit-item" *ngFor="let circuit of sharedService.circuits" (click)="onCircuitClicked(circuit.id)">
       <div class="circuit-name">{{ circuit.name }}</div>
-      <div class="circuit-description">{{ circuit.description || '无描述' }}</div>
+      <div class="circuit-description">{{ circuit.description || '暂无描述' }}</div>
       <div class="circuit-updated">最后修改：{{ circuit.updatedAt | date: 'yyyy-MM-dd HH:mm:ss' }}</div>
     </div>
   </div>
+
+</div>

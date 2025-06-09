@@ -10,6 +10,7 @@ export class SharedService {
   public isLoggedIn: boolean = false;
   public userId: number = 0;
   public circuits: Circuit[] | undefined;
+  public templates: Circuit[] | undefined;
   constructor() {
 
   }

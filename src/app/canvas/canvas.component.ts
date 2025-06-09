@@ -45,6 +45,7 @@ export class CanvasComponent implements OnInit{
   singleRunIndex = 0;
   isSingleRunMode = false;
   truthTable: { inputVector: number[], outputVector:number[]}[]=[];
+  templateId:number[]=[10, 13, 14, 15];
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
     this.currentMaxZIndex++;
@@ -336,16 +337,18 @@ export class CanvasComponent implements OnInit{
         });
       }
     }
-
+    let circuitId:number | undefined;
+    if(!this.templateId.includes(<number>this.circuitId)){
+      circuitId = this.circuitId;
+    }
     const payload = {
-      userId: this.sharedService.userId,
-      circuitId: this.circuitId,
+      userId:this.sharedService.userId,
+      circuitId: circuitId,
       name: this.fileName,
       description: this.descriptionContent,
       components,
       wires,
     };
-    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
     this.http.post('http://localhost:8080/webpj/circuits/save', payload).subscribe({
       next: () => alert('电路图保存成功！'),
       error: err => alert('保存失败：' + err.message)
@@ -407,7 +410,7 @@ export class CanvasComponent implements OnInit{
       components,
       wires,
     };
-
+    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
     this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
       (response:any)=>{
         if(response.code!=200){

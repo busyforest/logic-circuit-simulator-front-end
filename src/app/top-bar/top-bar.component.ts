@@ -9,9 +9,6 @@ import {SharedService} from '../../shared.service';
   selector: 'app-top-bar',
   imports: [
     RouterLink,
-    NgIf,
-    NgForOf,
-    NgClass,
     FormsModule,
     AiChatBoxComponent,
     AiChatBoxComponent
