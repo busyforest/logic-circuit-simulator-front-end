@@ -349,7 +349,7 @@ export class CanvasComponent implements OnInit{
       components,
       wires,
     };
-    this.http.post('http://localhost:8080/webpj/circuits/save', payload).subscribe({
+    this.http.post(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/save`, payload).subscribe({
       next: () => alert('电路图保存成功！'),
       error: err => alert('保存失败：' + err.message)
     });
@@ -411,7 +411,7 @@ export class CanvasComponent implements OnInit{
       wires,
     };
     console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
-    this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
+    this.http.post(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/simulate`, payload).subscribe(
       (response:any)=>{
         if(response.code!=200){
           alert("计算失败：" + response.message);
@@ -490,7 +490,7 @@ export class CanvasComponent implements OnInit{
       };
 
       console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
-      this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
+      this.http.post(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/simulate`, payload).subscribe(
         (response: any) => {
           const orderMap = new Map<string, number>();
           response.data.evaluationOrder.forEach((tempId: string, index: number) => {
@@ -569,7 +569,7 @@ singleRun(step: EvaluationAnimationStep){
   }
 
   restoreByCircuitId(id:number) {
-    this.http.get<any>(`http://localhost:8080/webpj/circuits/load/${id}`).subscribe(
+    this.http.get<any>(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/load/${id}`).subscribe(
       response=>{
         if(response.code!=200){
           alert("加载历史文件失败："+response.message);

@@ -32,7 +32,7 @@ export class LoginComponent {
       password:this.password,
     }
     // 假设登录验证成功
-    this.http.post('http://localhost:8080/webpj/user/login', payload).subscribe({
+    this.http.post(`http://${this.sharedService.serverAddress}:8080/webpj/user/login`, payload).subscribe({
       next: (response:any)=>{
         if(response.code == 200){
           this.sharedService.isLoggedIn = true;
@@ -51,7 +51,7 @@ export class LoginComponent {
     });
   }
   getCircuits(): Observable<Circuit[]> {
-    return this.http.get<any>(`http://localhost:8080/webpj/circuits/listByUser?userId=${this.sharedService.userId}`).pipe(
+    return this.http.get<any>(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/listByUser?userId=${this.sharedService.userId}`).pipe(
       map(response => response.data as Circuit[])
     );
   }

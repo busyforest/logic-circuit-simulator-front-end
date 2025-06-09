@@ -3,6 +3,7 @@ import {HttpClient, HttpHeaders} from "@angular/common/http";
 import {FormsModule} from '@angular/forms';
 import {NgClass, NgIf} from '@angular/common';
 import {Router, RouterLink} from '@angular/router';
+import {SharedService} from '../../shared.service';
 
 @Component({
   selector: 'app-user-register',
@@ -20,7 +21,7 @@ export class UserRegisterComponent implements OnInit {
   password = '';
   email = '';
   register() {
-    const url = "http://localhost:8080/webpj/user/register";
+    const url = `http://${this.sharedService.serverAddress}:8080/webpj/user/register`;
     const httpOptions = {
       headers: new HttpHeaders({'Content-Type': 'application/json'}),
     };
@@ -38,7 +39,7 @@ export class UserRegisterComponent implements OnInit {
         }
     });
   }
-  constructor(public http:HttpClient, private router:Router) { }
+  constructor(public http:HttpClient, private router:Router, private sharedService:SharedService) { }
 
   ngOnInit() {
   }

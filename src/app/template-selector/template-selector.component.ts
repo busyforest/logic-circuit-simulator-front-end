@@ -27,7 +27,7 @@ export class TemplateSelectorComponent implements OnInit {
     this.router.navigate(['/editor', templateId]);
   }
   getCircuits(): Observable<Circuit[]> {
-    return this.http.get<any>(`http://localhost:8080/webpj/circuits/template`).pipe(
+    return this.http.get<any>(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/template`).pipe(
       map(response => response.data as Circuit[])
     );
   }

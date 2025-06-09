@@ -36,7 +36,7 @@ export class AiChatBoxComponent {
     this.userInput = '';
     let botReply = "";
     this.isLoading = true;  // 开始加载
-    this.http.post("http://localhost:8080/webpj/ai/query", input).subscribe((response:any)=>{
+    this.http.post(`http://${this.sharedService.serverAddress}:8080/webpj/ai/query`, input).subscribe((response:any)=>{
       this.isLoading = false;
       if(response.code != 200){
         alert("发生错误：" + response.message);

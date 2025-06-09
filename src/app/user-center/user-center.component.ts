@@ -30,7 +30,7 @@ export class UserCenterComponent implements OnInit{
     });
   }
   getCircuits(): Observable<Circuit[]> {
-    return this.http.get<any>(`http://localhost:8080/webpj/circuits/listByUser?userId=${this.sharedService.userId}`).pipe(
+    return this.http.get<any>(`http://${this.sharedService.serverAddress}:8080/webpj/circuits/listByUser?userId=${this.sharedService.userId}`).pipe(
       map(response => response.data as Circuit[])
     );
   }
