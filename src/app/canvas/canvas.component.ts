@@ -44,6 +44,7 @@ export class CanvasComponent implements OnInit{
   isDeleteMode = false;
   singleRunIndex = 0;
   isSingleRunMode = false;
+  truthTable: { inputVector: number[], outputVector:number[]}[]=[];
   // 控制层级，保证拖动时始终位于最上层
   onDragStarted(event: CdkDragStart, gate: Gate) {
     this.currentMaxZIndex++;
@@ -344,7 +345,7 @@ export class CanvasComponent implements OnInit{
       components,
       wires,
     };
-    console.log(payload);
+    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
     this.http.post('http://localhost:8080/webpj/circuits/save', payload).subscribe({
       next: () => alert('电路图保存成功！'),
       error: err => alert('保存失败：' + err.message)
@@ -407,13 +408,16 @@ export class CanvasComponent implements OnInit{
       wires,
     };
 
-    console.log('📦 请求内容:', JSON.stringify(payload, null, 2));
     this.http.post('http://localhost:8080/webpj/circuits/simulate', payload).subscribe(
       (response:any)=>{
         if(response.code!=200){
           alert("计算失败：" + response.message);
         }else{}
         this.restoreFromJsonFromData(response.data);
+        this.truthTable = response.data.truthTable.map((row: any) => ({
+          inputVector: row.inputVector,
+          outputVector: row.outputVector,
+        }));
       }
     );
   }
@@ -433,7 +437,7 @@ export class CanvasComponent implements OnInit{
         posX: gate.pathX ?? 0,
         posY: gate.pathY ?? 0,
         inputState: JSON.stringify(gate.input.map(i => i)), // 深拷贝
-        outputState: JSON.stringify([gate.output]),
+        outputState: JSON.stringify(gate.output),
       }));
 
       const wires: any[] = [];
@@ -501,7 +505,7 @@ export class CanvasComponent implements OnInit{
               tempId: step.label,
               typeId: step.componentTypeId,
               newInput: step.newInputState,
-              newOutput: step.newOutputState,
+              newOutput: Number(step.newOutputState),
               order: order
             });
           });
@@ -530,7 +534,7 @@ singleRun(step: EvaluationAnimationStep){
           gate.output = step.newOutput;
           if(gate.typeId==7){
             // @ts-ignore
-            gate.output = gate.input;
+            gate.output = gate.input[0];
           }
           this.selectedGates.push(gate);
         }

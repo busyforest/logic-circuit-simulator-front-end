@@ -82,5 +82,23 @@
   <div class="describe-column">
     <h3>Description: </h3>
     <textarea class="describe-place" [(ngModel)]="descriptionContent"></textarea>
+    <h3>Result:</h3>
+    <!--  真值表  -->
+    <div class="truth-table">
+      <table>
+        <thead>
+        <tr>
+          <th *ngFor="let i of truthTable[0]?.inputVector; let idx = index">输入{{ idx }}</th>
+          <th *ngFor="let o of truthTable[0]?.outputVector; let idx = index">输出</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr *ngFor="let row of truthTable">
+          <td *ngFor="let input of row.inputVector">{{ input }}</td>
+          <td *ngFor="let output of row.outputVector">{{ output }}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </div>
