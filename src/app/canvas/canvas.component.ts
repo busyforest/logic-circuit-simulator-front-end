@@ -63,7 +63,7 @@ export class CanvasComponent implements OnInit{
     // 限制不超出画布边界
     x = Math.min(Math.max(0, x), canvasRect.width - 35);
     y = Math.min(Math.max(0, y), canvasRect.height - 40);
-
+    //
     // gate.x = x;
     // gate.y = y;
     gate.pathX = x;

@@ -11,7 +11,7 @@ export class SharedService {
   public userId: number = 0;
   public circuits: Circuit[] | undefined;
   public templates: Circuit[] | undefined;
-  public serverAddress:String = "8.133.243.85";
+  public serverAddress:String = "localhost";
   constructor() {
 
   }
